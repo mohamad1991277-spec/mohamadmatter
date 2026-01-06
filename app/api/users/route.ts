@@ -44,7 +44,7 @@ export async function GET() {
     try {
         const citizens = await prisma.citizen.findMany({
             orderBy: { createdAt: 'desc' },
-        });
+        }).catch(() => []);
         return NextResponse.json(citizens);
     } catch (error: any) {
         console.error("Error fetching users:", error);

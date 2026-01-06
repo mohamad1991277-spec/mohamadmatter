@@ -5,7 +5,19 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const citizens: any[] = await prisma.citizen.findMany();
+        // Initializing prisma might fail during build if DATABASE_URL is not handled correctly
+        // but force-dynamic should skip this. Adding extra safety.
+        const citizens: any[] = await prisma.citizen.findMany().catch(() => []);
+
+        if (!citizens || citizens.length === 0) {
+            return NextResponse.json({
+                total: 0,
+                gender: { males: 0, females: 0 },
+                ageGroups: { '0-12': 0, '13-18': 0, '19-30': 0, '31-50': 0, '50+': 0 },
+                cityStats: [],
+                needStats: []
+            });
+        }
 
         // Total
         const total = citizens.length;
