@@ -2,11 +2,16 @@ import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
-// Ensure DATABASE_URL is set for local development if missing
-if (!process.env.DATABASE_URL && process.env.NODE_ENV !== 'production') {
-    process.env.DATABASE_URL = "file:./dev.db"
+// Flexible initialization to avoid build-time crashes if DATABASE_URL is missing
+const createPrismaClient = () => {
+    try {
+        return new PrismaClient();
+    } catch (e) {
+        console.warn("Prisma client could not be initialized. This is expected during some build phases if DATABASE_URL is not set.");
+        return null as any;
+    }
 }
 
-export const prisma = globalForPrisma.prisma || new PrismaClient()
+export const prisma = globalForPrisma.prisma || createPrismaClient()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
