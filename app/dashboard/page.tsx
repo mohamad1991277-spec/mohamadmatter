@@ -13,10 +13,13 @@ export default function DashboardPage() {
     const fetchStats = async () => {
         try {
             const res = await fetch('/api/stats')
+            if (!res.ok) throw new Error('Failed to fetch')
             const data = await res.json()
-            setStats(data)
+            if (data && !data.error) {
+                setStats(data)
+            }
         } catch (e) {
-            console.error(e)
+            console.error('Fetch error:', e)
         } finally {
             setLoading(false)
         }

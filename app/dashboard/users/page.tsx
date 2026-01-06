@@ -30,13 +30,14 @@ export default function UsersPage() {
     const fetchUsers = async () => {
         try {
             const res = await fetch('/api/users')
+            if (!res.ok) throw new Error('Failed to fetch')
             const data = await res.json()
             if (Array.isArray(data)) {
                 setUsers(data)
                 setFilteredUsers(data)
             }
         } catch (e) {
-            console.error(e)
+            console.error('Fetch error:', e)
         } finally {
             setLoading(false)
         }
